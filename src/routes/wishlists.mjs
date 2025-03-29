@@ -1,54 +1,54 @@
 import { Router } from "express";
-import Whishlist from "../mongoose/schemas/whishlist.mjs";
+import Wishlist from "../mongoose/schemas/wishlist.mjs";
 import Product from "../mongoose/schemas/product.mjs";
 
 const router = Router();
 
-router.get("/api/whishlist", async (req, res) => {
+router.get("/api/wishlist", async (req, res) => {
   try {
     if (!req.isAuthenticated()) {
       return res.status(401).send("Non autenticato");
     }
 
     const userId = req.user._id; // Ottieni l'ID dell'utente dalla sessione
-    const whishlist = await Whishlist.findOne({ userId });
+    const wishlist = await Wishlist.findOne({ userId });
 
-    if (!whishlist) {
-      return res.status(404).send("Carrello non trovato");
+    if (!wishlist) {
+      return res.status(404).send("Whislist non trovata");
     }
 
-    return res.status(200).send(whishlist); // Restituisce il carrello dell'utente
+    return res.status(200).send(wishlist); // Restituisce il carrello dell'utente
   } catch (err) {
-    console.error("Errore nel recupero della whishlist:", err);
-    return res.status(500).send("Errore nel recupero della whishlist");
+    console.error("Errore nel recupero della wishlist:", err);
+    return res.status(500).send("Errore nel recupero della wishlist");
   }
 });
 
-router.get("/api/whishlist/all", async (req, res) => {
+router.get("/api/wishlist/all", async (req, res) => {
   try {
     if (!req.user || !req.user.isAdmin) {
       return res
         .status(403)
         .send(
-          "Accesso negato: solo gli amministratori possono visualizzare tutte le whishlist"
+          "Accesso negato: solo gli amministratori possono visualizzare tutte le wishlist"
         );
     }
 
-    const whishlists = await Whishlist.find(); // Trova tutti i whishlist
+    const wishlists = await Wishlist.find(); // Trova tutti i whishlist
 
-    if (!whishlists || whishlists.length === 0) {
-      return res.status(404).send("Nessuna whishlist trovato");
+    if (!wishlists || wishlists.length === 0) {
+      return res.status(404).send("Nessuna wishlist trovato");
     }
 
-    return res.status(200).send(whishlists); // Restituisce tutti i whishlist
+    return res.status(200).send(wishlists); // Restituisce tutti i whishlist
   } catch (err) {
-    console.error("Errore nel recupero delle whishlist:", err);
-    return res.status(500).send("Errore nel recupero delle whishlist");
+    console.error("Errore nel recupero delle wishlist:", err);
+    return res.status(500).send("Errore nel recupero delle wishlist");
   }
 });
 
-// Aggiungi prodotto alla whishlist
-router.post("/api/whishlist/add", async (req, res) => {
+// Aggiungi prodotto alla wishlist
+router.post("/api/wishlist/add", async (req, res) => {
   try {
     const { productId, quantity } = req.body; // Recupera i dati del prodotto e quantità dalla richiesta
 
@@ -63,15 +63,15 @@ router.post("/api/whishlist/add", async (req, res) => {
       return res.status(404).json({ message: "Prodotto non trovato." });
     }
 
-    let whishlist;
+    let wishlist;
 
     // Se l'utente è autenticato, usa il suo userId, altrimenti usa sessionId
     if (req.isAuthenticated()) {
       const userId = req.user._id;
-      whishlist = await Whishlist.findOne({ userId });
+      wishlist = await Wishlist.findOne({ userId });
 
-      if (!whishlist) {
-        whishlist = new Whishlist({ userId, items: [] });
+      if (!wishlist) {
+        wishlist = new Wishlist({ userId, items: [] });
       }
 
       // Aggiungi o aggiorna il prodotto nel whishlist
@@ -79,35 +79,35 @@ router.post("/api/whishlist/add", async (req, res) => {
         (item) => item.productId.toString() === productId
       );
       if (itemIndex >= 0) {
-        whishlist.items[itemIndex].quantity += quantity; // Aggiungi la quantità al prodotto esistente
+        wishlist.items[itemIndex].quantity += quantity; // Aggiungi la quantità al prodotto esistente
       } else {
-        whishlist.items.push({ productId, quantity });
+        wishlist.items.push({ productId, quantity });
       }
     } else {
       const sessionId = req.session.id;
-      whishlist = await Whishlist.findOne({ sessionId });
+      wishlist = await Wishlist.findOne({ sessionId });
 
-      if (!whishlist) {
-        whishlist = new Whishlist({ sessionId, items: [] });
+      if (!wishlist) {
+        wishlist = new Wishlist({ sessionId, items: [] });
       }
 
       // Aggiungi o aggiorna il prodotto nel whishlist
-      const itemIndex = whishlist.items.findIndex(
+      const itemIndex = wishlist.items.findIndex(
         (item) => item.productId.toString() === productId
       );
       if (itemIndex >= 0) {
-        whishlist.items[itemIndex].quantity += quantity; // Aggiungi la quantità al prodotto esistente
+        wishlist.items[itemIndex].quantity += quantity; // Aggiungi la quantità al prodotto esistente
       } else {
-        whishlist.items.push({ productId, quantity });
+        wishlist.items.push({ productId, quantity });
       }
     }
 
     // Salva il whishlist aggiornato
-    await whishlist.save();
+    await wishlist.save();
 
-    return res.status(200).json(whishlist);
+    return res.status(200).json(wishlist);
   } catch (err) {
-    console.error("Errore nell'aggiungere il prodotto al whishlist:", err);
+    console.error("Errore nell'aggiungere il prodotto al wishlist:", err);
     return res
       .status(500)
       .json({ message: "Errore nel server", error: err.message });
@@ -115,7 +115,7 @@ router.post("/api/whishlist/add", async (req, res) => {
 });
 
 // Modifica la quantità di un prodotto nel whishlist
-router.put("/api/whishlist/:productId", async (req, res) => {
+router.put("/api/wishlist/:productId", async (req, res) => {
   try {
     const { productId } = req.params; // ID del prodotto da aggiornare
     const { quantity } = req.body; // Nuova quantità
@@ -140,14 +140,14 @@ router.put("/api/whishlist/:productId", async (req, res) => {
     }
 
     // Trova il whishlist dell'utente
-    let whishlist = await Whishlist.findOne({ userId: req.user._id });
+    let wishlist = await Wishlist.findOne({ userId: req.user._id });
 
-    if (!whishlist) {
-      return res.status(404).json({ message: "whishlist non trovato." });
+    if (!wishlist) {
+      return res.status(404).json({ message: "wishlist non trovato." });
     }
 
-    // Trova il prodotto nel whishlist
-    const itemIndex = whishlist.items.findIndex(
+    // Trova il prodotto nel wishlist
+    const itemIndex = wishlist.items.findIndex(
       (item) => item.productId.toString() === productId
     );
 
@@ -158,14 +158,14 @@ router.put("/api/whishlist/:productId", async (req, res) => {
     }
 
     // Modifica la quantità del prodotto nel whishlist
-    whishlist.items[itemIndex].quantity = quantity;
+    wishlist.items[itemIndex].quantity = quantity;
 
     // Salva le modifiche al whishlist
-    await whishlist.save();
+    await wishlist.save();
 
     return res.status(200).json({
       message: "Quantità del prodotto aggiornata con successo.",
-      whishlist,
+      wishlist,
     });
   } catch (err) {
     console.error("Errore nell'aggiornare la quantità del prodotto:", err);
@@ -176,7 +176,7 @@ router.put("/api/whishlist/:productId", async (req, res) => {
 });
 
 // Rimuovi prodotto dal whishlist
-router.delete("/api/whishlist/remove", async (req, res) => {
+router.delete("/api/wishlist/remove", async (req, res) => {
   try {
     const { productId } = req.body; // Recupera l'ID del prodotto da eliminare
 
@@ -185,44 +185,44 @@ router.delete("/api/whishlist/remove", async (req, res) => {
     }
 
     // Verifica se l'utente è autenticato
-    let whishlist;
+    let wishlist;
     if (req.isAuthenticated()) {
       const userId = req.user._id;
-      whishlist = await Whishlist.findOne({ userId });
+      wishlist = await Wishlist.findOne({ userId });
 
-      if (!whishlist) {
+      if (!wishlist) {
         return res
           .status(404)
-          .json({ message: "whishlist non trovato per l'utente." });
+          .json({ message: "wishlist non trovato per l'utente." });
       }
 
       // Rimuovi il prodotto dal whishlist
-      whishlist.items = whishlist.items.filter(
+      wishlist.items = wishlist.items.filter(
         (item) => item.productId.toString() !== productId
       );
     } else {
       const sessionId = req.session.id;
-      whishlist = await Whishlist.findOne({ sessionId });
+      wishlist = await Wishlist.findOne({ sessionId });
 
-      if (!whishlist) {
+      if (!wishlist) {
         return res
           .status(404)
-          .json({ message: "whishlist non trovato per la sessione." });
+          .json({ message: "wishlist non trovato per la sessione." });
       }
 
-      // Rimuovi il prodotto dal whishlist
-      whishlist.items = whishlist.items.filter(
+      // Rimuovi il prodotto dal wishlist
+      wishlist.items = wishlist.items.filter(
         (item) => item.productId.toString() !== productId
       );
     }
 
     // Salva il whishlist aggiornato
-    await whishlist.save();
+    await wishlist.save();
 
     // Restituisci il whishlist aggiornato
-    return res.status(200).json(whishlist);
+    return res.status(200).json(wishlist);
   } catch (err) {
-    console.error("Errore nell'eliminare il prodotto dal whishlist:", err);
+    console.error("Errore nell'eliminare il prodotto dal wishlist:", err);
     return res
       .status(500)
       .json({ message: "Errore nel server", error: err.message });

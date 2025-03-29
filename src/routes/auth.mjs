@@ -1,7 +1,7 @@
 import { Router } from "express";
 import passport from "passport";
 import Cart from "../mongoose/schemas/cart.mjs"; // Assicurati che il percorso sia corretto
-import Whishlist from "../mongoose/schemas/whishlist.mjs";
+import Wishlist from "../mongoose/schemas/wishlist.mjs";
 const router = Router();
 
 router.post(
@@ -22,9 +22,9 @@ router.post(
       }
 
       // 🔹 Controlla se la wishlist esiste
-      let wishlist = await Whishlist.findOne({ userId });
+      let wishlist = await Wishlist.findOne({ userId });
       if (!wishlist) {
-        wishlist = new Whishlist({ userId, items: [] });
+        wishlist = new Wishlist({ userId, items: [] });
         await wishlist.save();
       }
 

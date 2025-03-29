@@ -7,7 +7,7 @@ import routes from "./routes/index.mjs";
 import { DB_URL, PORT } from "./utils/costants.mjs";
 import "./strategies/local-strategy.mjs";
 import cartMiddleware from "./utils/middlewares/cartMiddleware.mjs";
-import whishlistMiddleware from "./utils/middlewares/whishlistMiddlware.mjs";
+import wishlistMiddleware from "./utils/middlewares/wishlistMiddlware.mjs";
 
 const app = express();
 
@@ -31,7 +31,7 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(cartMiddleware);
-app.use(whishlistMiddleware);
+app.use(wishlistMiddleware);
 app.use(routes);
 
 app.listen(PORT, () => {

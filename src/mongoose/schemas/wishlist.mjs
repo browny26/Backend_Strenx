@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const WhishlistSchema = new mongoose.Schema({
+const WishlistSchema = new mongoose.Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", default: null }, // Associa a un utente se loggato
   items: [
     {
@@ -9,5 +9,5 @@ const WhishlistSchema = new mongoose.Schema({
     },
   ],
 });
-const Whishlist = mongoose.model("Whishlist", WhishlistSchema);
-export default Whishlist;
+const Wishlist = mongoose.model("Whishlist", WishlistSchema);
+export default Wishlist;
