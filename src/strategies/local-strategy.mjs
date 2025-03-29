@@ -28,24 +28,16 @@ passport.deserializeUser(async (id, done) => {
 });
 
 export default passport.use(
-  new Strategy(async (username, password, done) => {
-    /*  console.log(`Username: ${username}`);
-    console.log(`Password: ${password}`); */
+  new Strategy({ usernameField: "email" }, async (email, password, done) => {
+    console.log(`Email: ${email}`);
+    console.log(`Password: ${password}`);
 
     try {
-      /* const findUser = mockUsers.find((user) => user.username === username);
+      const findUser = await User.findOne({ email });
 
-      if (!findUser) throw new Error("User not found");
-      if (findUser.password !== password)
-        throw new Error("Invalid Credentials"); 
-
-      done(null, findUser);*/
-
-      const findUser = await User.findOne({ username });
-
-      if (!findUser) throw new Error("User not found");
+      if (!findUser) return done(null, false, { message: "User not found" });
       if (!comparePassword(password, findUser.password))
-        throw new Error("Invalid Credentials");
+        return done(null, false, { message: "Invalid Credentials" });
 
       done(null, findUser);
     } catch (err) {

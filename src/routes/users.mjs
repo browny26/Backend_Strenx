@@ -1,18 +1,22 @@
 import { Router } from "express";
 import { validationResult, matchedData, checkSchema } from "express-validator";
-import {
-  queryValidationSchema,
-  createUserValidationSchema,
-} from "../utils/validationsSchemas.mjs";
+import { createUserValidationSchema } from "../utils/validationsSchemas.mjs";
 import { User } from "../mongoose/schemas/user.mjs";
 import { hashPassword } from "../utils/helpers.mjs";
 
 const router = Router();
 
-// Recupero di tutti gli utenti dal database
+// Recupero di utenti con filtro generico
 router.get("/api/users", async (req, res) => {
   try {
-    const users = await User.find(); // Usa il modello User per ottenere tutti gli utenti
+    const { filter, value } = req.query; // Leggi i parametri dalla query string
+    let query = {};
+
+    if (filter && value) {
+      query[filter] = { $regex: value, $options: "i" }; // Cerca il valore dentro il campo specificato
+    }
+
+    const users = await User.find(query); // Filtra gli utenti in base alla query
     return res.status(200).send(users);
   } catch (err) {
     console.log(err);

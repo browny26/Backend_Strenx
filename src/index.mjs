@@ -5,6 +5,8 @@ import passport from "passport";
 import MongoStore from "connect-mongo";
 import routes from "./routes/index.mjs";
 import { DB_URL, PORT } from "./utils/costants.mjs";
+import "./strategies/local-strategy.mjs";
+import cartMiddleware from "./utils/middlewares/cartMiddleware.mjs";
 
 const app = express();
 
@@ -20,13 +22,14 @@ app.use(
     saveUninitialized: false,
     resave: false,
     cookie: {
-      maxAge: 60000 * 60,
+      maxAge: 60000 * 60 * 24,
     },
     store: MongoStore.create({ client: mongoose.connection.getClient() }), // salva la sessione nel db cosi che se il server si riavvia rimani loggato
   })
 );
 app.use(passport.initialize());
 app.use(passport.session());
+app.use(cartMiddleware);
 app.use(routes);
 
 app.listen(PORT, () => {
