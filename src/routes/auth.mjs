@@ -1,7 +1,7 @@
 import { Router } from "express";
 import passport from "passport";
 import Cart from "../mongoose/schemas/cart.mjs"; // Assicurati che il percorso sia corretto
-
+import Whishlist from "../mongoose/schemas/whishlist.mjs";
 const router = Router();
 
 router.post(
@@ -11,22 +11,28 @@ router.post(
     try {
       const userId = req.user._id;
 
-      // Crea la sessione
-      req.session.userId = userId; // Salva l'ID dell'utente nella sessione
+      // 🔹 Salva l'ID dell'utente nella sessione
+      req.session.userId = userId;
 
-      // Crea un carrello associato all'utente
+      // 🔹 Controlla se il carrello esiste
       let cart = await Cart.findOne({ userId });
-
       if (!cart) {
-        // Se l'utente non ha un carrello, creane uno nuovo
         cart = new Cart({ userId, items: [] });
         await cart.save();
       }
 
-      // Salva l'ID del carrello nella sessione
-      req.session.cartId = cart._id;
+      // 🔹 Controlla se la wishlist esiste
+      let wishlist = await Whishlist.findOne({ userId });
+      if (!wishlist) {
+        wishlist = new Whishlist({ userId, items: [] });
+        await wishlist.save();
+      }
 
-      return res.status(200).send(cart); // Risponde con il carrello
+      // 🔹 Salva gli ID nella sessione
+      req.session.cartId = cart._id;
+      req.session.wishlistId = wishlist._id;
+
+      return res.status(200).json({ cart, wishlist }); // 🔹 Risponde con entrambi
     } catch (err) {
       console.error("Errore nel login:", err);
       return res.status(500).send("Errore durante il login");

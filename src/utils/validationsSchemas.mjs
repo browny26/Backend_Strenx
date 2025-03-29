@@ -93,9 +93,9 @@ export const createProductValidationSchema = {
       options: { nullable: true },
     },
     matches: {
-      options: [/^https?:\/\/.*\.(jpeg|jpg|png|gif)$/i],
+      options: [/.*\.(jpeg|jpg|png|gif)$/i],
       errorMessage:
-        "L'URL dell'immagine deve essere un link valido (jpeg, jpg, png, gif)",
+        "L'URL dell'immagine deve un'estensione valida (jpeg, jpg, png, gif)",
     },
   },
 };

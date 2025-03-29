@@ -3,7 +3,8 @@ import { Router } from "express";
 import userRouter from "./users.mjs";
 import authRouter from "./auth.mjs";
 import cartRouter from "./carts.mjs";
-import productRouter from "./products.mjs"; // Assicurati che il percorso sia corretto
+import productRouter from "./products.mjs";
+import whishlistRouter from "./whishlists.mjs";
 
 const router = Router();
 
@@ -11,5 +12,6 @@ router.use(authRouter);
 router.use(userRouter);
 router.use(cartRouter);
 router.use(productRouter);
+router.use(whishlistRouter);
 
 export default router;
