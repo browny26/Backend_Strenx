@@ -76,16 +76,48 @@ export const createProductValidationSchema = {
     },
   },
   category: {
-    isLength: {
-      options: { min: 3, max: 100 },
-      errorMessage:
-        "La categoria del prodotto deve avere tra 3 e 100 caratteri",
+    isArray: {
+      errorMessage: "La categoria deve essere un array di stringhe",
+    },
+    custom: {
+      options: (value) => {
+        if (!Array.isArray(value)) return false;
+        return value.every((v) => typeof v === "string");
+      },
+      errorMessage: "Ogni elemento della categoria deve essere una stringa",
     },
     notEmpty: {
       errorMessage: "La categoria del prodotto non può essere vuoto",
     },
-    isString: {
-      errorMessage: "La categoria del prodotto deve essere una stringa",
+  },
+  tags: {
+    optional: {
+      options: { nullable: true },
+    },
+    isArray: {
+      errorMessage: "I tag devono essere un array di stringhe",
+    },
+    custom: {
+      options: (value) => {
+        if (!Array.isArray(value)) return false;
+        return value.every((v) => typeof v === "string");
+      },
+      errorMessage: "Ogni tag deve essere una stringa",
+    },
+  },
+  size: {
+    optional: {
+      options: { nullable: true },
+    },
+    isArray: {
+      errorMessage: "Le dimensioni devono essere un array di stringhe",
+    },
+    custom: {
+      options: (value) => {
+        if (!Array.isArray(value)) return false;
+        return value.every((v) => typeof v === "string");
+      },
+      errorMessage: "Ogni dimensione deve essere una stringa",
     },
   },
   imageUrl: {

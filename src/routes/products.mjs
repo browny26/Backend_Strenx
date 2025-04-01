@@ -9,22 +9,92 @@ import Product from "../mongoose/schemas/product.mjs"; // Assicurati che il perc
 
 const router = express.Router();
 
-router.get("/api/product", async (req, res) => {
+// router.get("/api/product", async (req, res) => {
+//   try {
+//     const { filter, value } = req.query;
+//     let query = {};
+
+//     if (filter && value) {
+//       query[filter] = { $regex: value, $options: "i" }; // Cerca in modo case-insensitive
+//     }
+
+//     const products = await Product.find(query);
+
+//     if (products.length === 0) {
+//       return res.status(404).send("Nessun prodotto trovato");
+//     }
+
+//     return res.status(200).json(products);
+//   } catch (err) {
+//     console.error("Errore nel recupero dei prodotti:", err);
+//     return res.status(500).send("Errore nel recupero dei prodotti");
+//   }
+// });
+
+router.get("/api/products", async (req, res) => {
   try {
-    const { filter, value } = req.query;
-    let query = {};
+    const {
+      category,
+      tags,
+      size,
+      minPrice,
+      maxPrice,
+      page = 1,
+      limit = 10,
+      sort, // Aggiunto parametro per ordinamento
+    } = req.query;
 
-    if (filter && value) {
-      query[filter] = { $regex: value, $options: "i" }; // Cerca in modo case-insensitive
+    let filter = {};
+
+    // Supporta più categorie (array)
+    if (category) {
+      filter.category = { $in: category.split(",") };
     }
 
-    const products = await Product.find(query);
-
-    if (products.length === 0) {
-      return res.status(404).send("Nessun prodotto trovato");
+    // Supporta più tag (array)
+    if (tags) {
+      filter.tags = { $in: tags.split(",") };
     }
 
-    return res.status(200).json(products);
+    // Filtro per taglia esatta
+    if (size) {
+      filter.sizes = size;
+    }
+
+    // Filtraggio per range di prezzo
+    if (minPrice || maxPrice) {
+      filter.price = {};
+      if (minPrice) filter.price.$gte = parseFloat(minPrice);
+      if (maxPrice) filter.price.$lte = parseFloat(maxPrice);
+    }
+
+    // Converti i valori di paginazione in numeri
+    const pageNumber = parseInt(page);
+    const limitNumber = parseInt(limit);
+    const skip = (pageNumber - 1) * limitNumber;
+
+    // Ordinamento (es. "price" o "-price" per discendente)
+    const sortOption = {};
+    if (sort) {
+      const sortField = sort.replace("-", "");
+      sortOption[sortField] = sort.startsWith("-") ? -1 : 1;
+    }
+
+    // Esegui la query con filtri, paginazione e ordinamento
+    const products = await Product.find(filter)
+      .sort(sortOption)
+      .skip(skip)
+      .limit(limitNumber);
+
+    // Conta il numero totale di prodotti con i filtri applicati
+    const totalProducts = await Product.countDocuments(filter);
+
+    return res.status(200).json({
+      totalProducts,
+      totalPages: Math.ceil(totalProducts / limitNumber),
+      currentPage: pageNumber,
+      products,
+    });
   } catch (err) {
     console.error("Errore nel recupero dei prodotti:", err);
     return res.status(500).send("Errore nel recupero dei prodotti");

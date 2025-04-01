@@ -7,8 +7,10 @@ const productSchema = new mongoose.Schema({
   price: { type: mongoose.SchemaTypes.Number, required: true },
   inStock: { type: mongoose.SchemaTypes.Number, required: true },
   rate: { type: mongoose.SchemaTypes.Number, default: 0 },
-  category: { type: mongoose.SchemaTypes.String, required: true },
-  imageUrl: { type: mongoose.SchemaTypes.String }, // opzionale: URL per l'immagine del prodotto
+  category: { type: [mongoose.SchemaTypes.String], required: true },
+  tags: { type: [mongoose.SchemaTypes.String], default: [] },
+  size: { type: [mongoose.SchemaTypes.String], default: [] },
+  imageUrl: { type: mongoose.SchemaTypes.String },
 });
 
 const Product = mongoose.model("Product", productSchema);

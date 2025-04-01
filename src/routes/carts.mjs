@@ -134,11 +134,9 @@ router.put("/api/cart/:productId", async (req, res) => {
 
     // Verifica che l'utente sia autenticato
     if (!req.isAuthenticated()) {
-      return res
-        .status(401)
-        .json({
-          message: "Devi essere autenticato per modificare il carrello.",
-        });
+      return res.status(401).json({
+        message: "Devi essere autenticato per modificare il carrello.",
+      });
     }
 
     // Trova il carrello dell'utente
@@ -165,12 +163,10 @@ router.put("/api/cart/:productId", async (req, res) => {
     // Salva le modifiche al carrello
     await cart.save();
 
-    return res
-      .status(200)
-      .json({
-        message: "Quantità del prodotto aggiornata con successo.",
-        cart,
-      });
+    return res.status(200).json({
+      message: "Quantità del prodotto aggiornata con successo.",
+      cart,
+    });
   } catch (err) {
     console.error("Errore nell'aggiornare la quantità del prodotto:", err);
     return res
@@ -227,6 +223,54 @@ router.delete("/api/cart/remove", async (req, res) => {
     return res.status(200).json(cart);
   } catch (err) {
     console.error("Errore nell'eliminare il prodotto dal carrello:", err);
+    return res
+      .status(500)
+      .json({ message: "Errore nel server", error: err.message });
+  }
+});
+
+// Svuota il carrello
+router.delete("/api/cart/empty", async (req, res) => {
+  try {
+    let cart;
+
+    // Verifica se l'utente è autenticato
+    if (req.isAuthenticated()) {
+      const userId = req.user._id;
+      cart = await Cart.findOne({ userId });
+
+      if (!cart) {
+        return res
+          .status(404)
+          .json({ message: "Carrello non trovato per l'utente." });
+      }
+
+      // Svuota il carrello rimuovendo tutti gli items
+      cart.items = [];
+    } else {
+      const sessionId = req.session.id;
+      cart = await Cart.findOne({ sessionId });
+
+      if (!cart) {
+        return res
+          .status(404)
+          .json({ message: "Carrello non trovato per la sessione." });
+      }
+
+      // Svuota il carrello rimuovendo tutti gli items
+      cart.items = [];
+    }
+
+    // Salva il carrello vuoto
+    await cart.save();
+
+    // Restituisci il carrello vuoto
+    return res.status(200).json({
+      message: "Carrello svuotato con successo.",
+      cart,
+    });
+  } catch (err) {
+    console.error("Errore nello svuotare il carrello:", err);
     return res
       .status(500)
       .json({ message: "Errore nel server", error: err.message });

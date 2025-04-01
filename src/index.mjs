@@ -3,11 +3,13 @@ import session from "express-session";
 import mongoose from "mongoose";
 import passport from "passport";
 import MongoStore from "connect-mongo";
+import cookieParser from "cookie-parser";
 import routes from "./routes/index.mjs";
 import { DB_URL, PORT } from "./utils/costants.mjs";
 import "./strategies/local-strategy.mjs";
 import cartMiddleware from "./utils/middlewares/cartMiddleware.mjs";
 import wishlistMiddleware from "./utils/middlewares/wishlistMiddlware.mjs";
+import trackVisitor from "./utils/middlewares/visitorMiddleware.mjs";
 
 const app = express();
 
@@ -30,8 +32,10 @@ app.use(
 );
 app.use(passport.initialize());
 app.use(passport.session());
+app.use(cookieParser());
 app.use(cartMiddleware);
 app.use(wishlistMiddleware);
+app.use(trackVisitor);
 app.use(routes);
 
 app.listen(PORT, () => {
