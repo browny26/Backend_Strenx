@@ -41,6 +41,7 @@ router.get("/api/products", async (req, res) => {
       maxPrice,
       page = 1,
       limit = 10,
+      name,
       sort, // Aggiunto parametro per ordinamento
     } = req.query;
 
@@ -66,6 +67,10 @@ router.get("/api/products", async (req, res) => {
       filter.price = {};
       if (minPrice) filter.price.$gte = parseFloat(minPrice);
       if (maxPrice) filter.price.$lte = parseFloat(maxPrice);
+    }
+
+    if (name) {
+      filter.name = { $regex: name, $options: "i" }; // Cerca il nome in modo parziale e case-insensitive
     }
 
     // Converti i valori di paginazione in numeri
