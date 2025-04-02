@@ -8,8 +8,8 @@ const productSchema = new mongoose.Schema({
   inStock: { type: mongoose.SchemaTypes.Number, required: true },
   rate: { type: mongoose.SchemaTypes.Number, default: 0 },
   category: { type: [mongoose.SchemaTypes.String], required: true },
-  tags: { type: [mongoose.SchemaTypes.String], default: [] },
-  size: { type: [mongoose.SchemaTypes.String], default: [] },
+  tags: { type: [mongoose.SchemaTypes.String] },
+  size: { type: [mongoose.SchemaTypes.String] },
   imageUrl: { type: mongoose.SchemaTypes.String },
 });
 

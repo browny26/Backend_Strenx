@@ -112,8 +112,16 @@ router.post(
     }
 
     try {
-      const { name, description, price, inStock, category, imageUrl } =
-        req.body;
+      const {
+        name,
+        description,
+        price,
+        inStock,
+        category,
+        size,
+        tags,
+        imageUrl,
+      } = req.body;
 
       // Crea un nuovo prodotto con i dati ricevuti
       const product = new Product({
@@ -122,6 +130,8 @@ router.post(
         price,
         inStock,
         category,
+        size,
+        tags,
         imageUrl,
       });
 
