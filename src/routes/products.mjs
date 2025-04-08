@@ -106,6 +106,28 @@ router.get("/api/products", async (req, res) => {
   }
 });
 
+// Ottieni un prodotto per ID
+router.get("/api/product/:productId", async (req, res) => {
+  try {
+    const { productId } = req.params; // Recupera l'ID del prodotto dalla richiesta
+
+    // Trova il prodotto nel database tramite l'ID
+    const product = await Product.findById(productId);
+
+    if (!product) {
+      return res.status(404).json({ message: "Prodotto non trovato" });
+    }
+
+    // Restituisci il prodotto trovato
+    return res.status(200).json(product);
+  } catch (err) {
+    console.error("Errore nel recupero del prodotto:", err);
+    return res
+      .status(500)
+      .json({ message: "Errore nel server", error: err.message });
+  }
+});
+
 // Aggiungi un prodotto (crea un nuovo prodotto)
 router.post(
   "/api/product",

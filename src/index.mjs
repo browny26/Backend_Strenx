@@ -33,11 +33,19 @@ app.use(
     resave: false,
     cookie: {
       maxAge: 60000 * 60 * 24,
+      secure: false,
+      httpOnly: true,
+      sameSite: "lax",
     },
     store: MongoStore.create({ client: mongoose.connection.getClient() }), // salva la sessione nel db cosi che se il server si riavvia rimani loggato
   })
 );
-app.use(cors()); // Aggiungi il middleware CORS alla tua app Express
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    credentials: true, // 👈 fondamentale per permettere i cookie cross-origin
+  })
+); // Aggiungi il middleware CORS alla tua app Express
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(cookieParser());
