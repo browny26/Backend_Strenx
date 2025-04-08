@@ -75,7 +75,7 @@ router.post("/api/wishlist/add", async (req, res) => {
       }
 
       // Aggiungi o aggiorna il prodotto nel whishlist
-      const itemIndex = whishlist.items.findIndex(
+      const itemIndex = wishlist.items.findIndex(
         (item) => item.productId.toString() === productId
       );
       if (itemIndex >= 0) {
